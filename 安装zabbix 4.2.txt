@@ -5,6 +5,7 @@
 然后重启
 
 2. 安装组件
+[root@localhost ~]# mkdir /etc/yum.repos.d/bak
 [root@localhost ~]# mv /etc/yum.repos.d/* /etc/yum.repos.d/bak/  //备份原repo文件
 [root@localhost ~]# mv myzabbix.repo /etc/yum.repos.d/   //配置本地Yum仓库
 
