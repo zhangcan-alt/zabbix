@@ -1,0 +1,108 @@
+1. 关闭防火墙
+#systemctl stop firewalld
+#systemctl disable firewalld
+#vi /etc/selinux/config  //selinux设置为disabled /enforcing
+然后重启
+
+2. 安装组件
+[root@localhost ~]# mv /etc/yum.repos.d/* /etc/yum.repos.d/bak/  //备份原repo文件
+[root@localhost ~]# mv myzabbix.repo /etc/yum.repos.d/   //配置本地Yum仓库
+
+3. 安装a,m,p
+#yum install httpd php php-mysql mariadb-server
+等待安装
+
+#vi /var/www/html/test.php //测试php安装是否成功
+#================
+<?php  phpinfo();  ?>
+#==============
+# vi /etc/php.ini
+date.timezone=Asia/Shanghai
+启动Apache，用浏览器看看能否打开http://127.0.0.1/test.php页面
+#systemctl start httpd
+
+配置mariadb数据库
+#systemctl start mariadb
+#mysql_secure_installation
+Enter current password for root (enter for none):<–初次运行直接回车
+Set root password? [Y/n] <– 是否设置root用户密码，输入y并回车或直接回车
+New password: <– 设置root用户的密码
+Re-enter new password: <– 再输入一次你设置的密码
+剩下的一律 y 一直到配置完成。
+
+4.创建zabbix数据库
+# mysql -uroot -p  //登录数据库
+mysql> create database zabbix character set utf8 collate utf8_bin;
+mysql> grant all privileges on zabbix.* to 'zabbix'@'localhost' identified by 'zabbix';
+mysql> flush privileges;
+mysql> exit;
+
+5. 安装zabbix4.2
+
+# yum -y install zabbix-server-mysql zabbix-web-mysql zabbix-agent -y
+#vi /etc/httpd/conf.d/zabbix.conf
+修改时区为上海：php_value date.timezone Asia/Shanghai
+
+#cd /usr/share/doc/zabbix-server-mysql-4.2.7/
+#gzip -d  create.sql.gz
+
+6.导入zabbix数据库
+用户名：zabbix 密码：zabbix 数据库：zabbix
+#mysql -uzabbix -pzabbix zabbix < create.sql
+=================
+其实下面这段可以不用执行，但在网页安装的时候要填
+#vi  /etc/zabbix/zabbix_server.conf
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbix
+保存退出
+==================
+7. 启动zabbix服务
+# systemctl start zabbix-server
+# systemctl status zabbix-server
+
+8.web安装
+①下一步
+②等待自我检测，全部OK即可下一步，有问题需要进行排查。
+③填入数据库密码
+④zabbix命名
+⑤确认信息无误
+⑥完成
+现在可以登录zabbix了
+默认用户名密码：
+Admin
+zabbix
+
+9.还原yum的repo文件
+[root@localhost ~]# mv /etc/yum.repos.d/bak/* /etc/yum.repos.d/
+[root@localhost ~]# mv /etc/yum.repos.d/myzabbix.repo /etc/yum.repos.d/bak/
+其他可能遇到的问题
+#yum remove mariadb
+#systemctl enable mariadb
+# netstat -an |grep 80
+tcp 0 0 192.168.56.11:80 0.0.0.0:* LISTEN 
+
+配置Zabbix frontend
+#vim /etc/php.ini
+max_execution_time = 300
+memory_limit = 128M
+post_max_size = 16M
+upload_max_filesize = 2M
+max_input_time = 300
+max_input_vars = 10000
+always_populate_raw_post_data = -1
+date.timezone = Asia/Shanghai
+
+提示“zabbix server is not running the information displayed may not be current”
+修改 /etc/zabbix/zabbix_server.conf
+把 DBSocket=改为 DBSocket=/var/lib/mysql/mysql.sock
+
+zabbix_agent配置
+#vi /etc/zabbix/zabbix-agentd.conf
+LogFile=
+Server=[zabbix-server的ip]
+ServerActive=[zabbix-server的ip]
+Hostname=[在zabbix上配置的主机名]
+
+
