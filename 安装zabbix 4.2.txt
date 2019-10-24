@@ -52,7 +52,8 @@ mysql> exit;
 #mysql -uzabbix -pzabbix zabbix < create.sql
 =================
 其实下面这段可以不用执行，但在网页安装的时候要填
-#vi  /etc/zabbix/zabbix_server.conf
+#更正，必须要改，不然会报错
+#vi  /etc/zabbix/zabbix_server.conf
 DBHost=localhost
 DBName=zabbix
 DBUser=zabbix
@@ -78,12 +79,14 @@ zabbix
 9.还原yum的repo文件
 [root@localhost ~]# mv /etc/yum.repos.d/bak/* /etc/yum.repos.d/
 [root@localhost ~]# mv /etc/yum.repos.d/myzabbix.repo /etc/yum.repos.d/bak/
+
 其他可能遇到的问题
+问题一：查看端口
 #yum remove mariadb
 #systemctl enable mariadb
 # netstat -an |grep 80
-tcp 0 0 192.168.56.11:80 0.0.0.0:* LISTEN 
-
+tcp 0 0 192.168.56.11:80 0.0.0.0:* LISTEN 
+问题二，配置参数
 配置Zabbix frontend
 #vim /etc/php.ini
 max_execution_time = 300
@@ -94,7 +97,7 @@ max_input_time = 300
 max_input_vars = 10000
 always_populate_raw_post_data = -1
 date.timezone = Asia/Shanghai
-
+问题三：
 提示“zabbix server is not running the information displayed may not be current”
 修改 /etc/zabbix/zabbix_server.conf
 把 DBSocket=改为 DBSocket=/var/lib/mysql/mysql.sock
