@@ -1,0 +1,5 @@
+[myzabbix]
+name=my offline zabbix install
+baseurl=file:///opt/usb/zabbix
+gpgcheck=0
+enabled=1
