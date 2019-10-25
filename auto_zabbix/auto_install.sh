@@ -13,7 +13,7 @@ function set_firewall(){
 	systemctl stop firewalld
 	systemctl disable firewalld
 	#selinux设置为disabled /enforcing
-	sed -i '/SELINUX=/s/disabled/123456/g' /etc/selinux/config
+	sed -i '/SELINUX=/s/enforcing/disabled/g' /etc/selinux/config
 	setenforce 0
 }
 
@@ -83,7 +83,7 @@ function conf_zabbix_server(){
 	sed -i 's/# php_value date.timezone/php_value date.timezone/g' /etc/httpd/conf.d/zabbix.conf
 	sed -i 's#Europe/Riga#Asia/Shanghai#g' /etc/httpd/conf.d/zabbix.conf
 	conf_zabbixdb
-	sed -i s/'# DBPassword='/'DBPassword=zabbix'/g  /usr/local/etc/zabbix_server.conf
+	sed -i s/'# DBPassword='/'DBPassword=zabbix'/g /etc/zabbix/zabbix_server.conf
 }
 #[配置]zabbix_agent
 function conf_zabbix_agent(){
@@ -181,7 +181,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*) 
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -218,7 +218,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -250,7 +250,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -279,7 +279,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -308,7 +308,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -334,7 +334,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -351,7 +351,7 @@ if [ 0 -eq 0 ];then
 							break
 							;;
 						*)
-							echo "请选择配置项"
+							echo "请[重新]选择配置项"
 					esac
 				done
 				;;
@@ -359,7 +359,7 @@ if [ 0 -eq 0 ];then
 				break
 				;;
 			*)
-				echo "请选择配置项"
+				echo "请[重新]选择配置项"
 		esac
 	done
 fi
