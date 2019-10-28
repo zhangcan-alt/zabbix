@@ -2,6 +2,7 @@
 echo "########### 从##########这#########里###### 开#######始"
 basedir=$(cd $(dirname "$0");pwd)
 filepath=`echo "${basedir}/myzabbix"`
+echo $filepath
 sed -i "s#/opt/usb/zabbix#$filepath#g" myzabbix.repo
 echo "################ 所有操作在ROOT用户下进行 ####################"
 echo "=================================================="
@@ -27,22 +28,33 @@ function set_repo(){
 	sleep 1
 	yum clean all
 	sleep 1
+	yum -y install expect >> /dev/null 
+	if [ $? -ne 0 ];then
+		echo "配置出错"
+		exit_return
+		exit 0
+	fi
+        echo "---------configure-ok----------"
 }
 #[安装]httpd2.4.6
 function install_httpd(){
 	yum install httpd -y
+	echo "---------httpd-install-ok----------"
 }
 #[安装]php5.4.16
 function install_php(){
 	yum -y install php php-mysql
+	echo "---------php-install-ok----------"
 }
 #[安装]mariadb5.5.64
 function install_mariadb(){
 	yum -y install mariadb-server
+	echo "---------mariaDB-install-ok----------"
 }
 #[安装]zabbix4.2.7
 function install_zabbix_server(){
 	yum -y install zabbix-server-mysql zabbix-web-mysql
+	echo "---------zabbix-server-install-ok----------"
 }
 #[安装]zabbix-agent
 function install_zabbix_agent(){
@@ -51,20 +63,23 @@ function install_zabbix_agent(){
 	systemctl start zabbix-agent
 	sleep 2
 	systemctl stop zabbix-agent
+	echo "---------zabbix-agent-install-ok----------"
 }
 
 #[配置]httpd
 function conf_httpd(){
-	echo 'nothing need to do'
+	echo 'httpd nothing need to do'
 }
 #[配置]php
 function conf_php(){
 	sed -i s/'^;date.timezone.*'/'date.timezone = Asia\/Shanghai'/g /etc/php.ini
+	echo "---------php-conf-ok----------"
 }
 #[配置]mariaDB
 function conf_mariadb(){
 	chmod +x $basedir/initmariadb.sh
-	sh $basedir/initmariadb.sh
+	$basedir/initmariadb.sh
+	echo "---------mariaDB-conf-ok----------"
 }
 #[配置]zabbix数据库
 function conf_zabbixdb(){
@@ -73,9 +88,10 @@ function conf_zabbixdb(){
 	mysql -uroot -pzhangcan -e "flush privileges;"
 	cd /usr/share/doc/zabbix-server-mysql-4.2.7/
 	sleep 1
-	gzip -d create.sql.gz
+	gunzip -c create.sql.gz > create.sql
 	sleep 1
 	mysql -uzabbix -pzabbix zabbix < create.sql
+	echo "---------zabbixdb-create-ok----------"
 }
 #[配置]zabbix_server
 function conf_zabbix_server(){
@@ -84,27 +100,33 @@ function conf_zabbix_server(){
 	sed -i 's#Europe/Riga#Asia/Shanghai#g' /etc/httpd/conf.d/zabbix.conf
 	conf_zabbixdb
 	sed -i s/'# DBPassword='/'DBPassword=zabbix'/g /etc/zabbix/zabbix_server.conf
+	echo "---------zabbix-server.conf-conf-ok----------"
 }
 #[配置]zabbix_agent
 function conf_zabbix_agent(){
 	echo '功能未完善'
+	echo "-----nothing-to-do------------"
 }
 
 #[启动]httpd
 function start_httpd(){
 	systemctl start httpd
+	echo "---------start httpd-ok----------"
 }
 #[启动]mariadb
 function start_mariadb(){
 	systemctl start mariadb
+	echo "---------start mariaDB-ok----------"
 }
 #[启动]zabbix-server
 function start_zabbix_server(){
 	systemctl start zabbix-server
+	echo "---------start zabbix-server-ok----------"
 }
 #[启动]zabbix-agent
 function start_zabbix_agent(){
 	systemctl start zabbix-agent
+	echo "---------start zabbix-agent-ok----------"
 }
 
 #####安装所有#####
@@ -114,6 +136,7 @@ function install_all(){
 	install_mariadb
 	install_zabbix_server
 	install_zabbix_agent
+	echo "---------install-all-ok----------"
 }
 
 #####配置所有#####
@@ -123,6 +146,7 @@ function conf_all(){
 	conf_mariadb
 	conf_zabbix_server
 	conf_zabbix_agent
+	echo "---------conf-all-ok----------"
 }
 
 #####启动所有#####
@@ -131,22 +155,26 @@ function start_all(){
 	start_mariadb
 	start_zabbix_server
 	start_zabbix_agent
+	echo "---------start-all-ok----------"
 }
 
 #####停止所有###
 function stop_all(){
 	systemctl stop httpd mariadb zabbix-agent zabbix-server
+	echo "---------stop-all-ok----------"
 }
 
 #####添加开机启动####
 function service_enable(){
 	systemctl enable httpd mariadb zabbix-server zabbix-agent
+	echo "---------add-runnig-start-ok----------"
 }
 
 #退出并还原repo文件
 function exit_return(){
 	mv /etc/yum.repos.d/bak/* /etc/yum.repos.d/
 	rm -f /etc/yum.repos.d/myzabbix.repo
+	echo "-------exit-and-recover-org-repo-ok----------"
 }
 
 ####一键安装LAMP-zabbix ###
@@ -158,6 +186,7 @@ function auto_install(){
 	start_all
 	service_enable
 	exit_return
+	echo "---------auto-install-ok----------"
 }
 
 
