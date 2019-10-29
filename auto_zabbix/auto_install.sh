@@ -1,9 +1,9 @@
 #!/bin/bash
 echo "########### 从##########这#########里###### 开#######始"
 basedir=$(cd $(dirname "$0");pwd)
-filepath=`echo "${basedir}/myzabbix"`
+filepath=baseurl=file://`echo "${basedir}/myzabbix"`
 echo $filepath
-sed -i "s#/opt/usb/zabbix#$filepath#g" myzabbix.repo
+sed -i s#'^baseurl=file://.*'#$filepath#g myzabbix.repo
 echo "################ 所有操作在ROOT用户下进行 ####################"
 echo "=================================================="
 echo "################# 适用于CentOS7系列 #########################"
