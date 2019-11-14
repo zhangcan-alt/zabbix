@@ -9,6 +9,16 @@ echo "=================================================="
 echo "################# 适用于CentOS7系列 #########################"
 cat myzabbix.repo
 echo "##################################################"
+function alters(){
+	## 参数输入 $? ###
+	if [ $1 -nq 0 ]; then
+	    echo "error"
+	else 
+	    echo "pass"
+	fi
+}
+
+
 #关闭防火墙
 function set_firewall(){
 	systemctl stop firewalld
@@ -28,7 +38,7 @@ function set_repo(){
 	sleep 1
 	yum clean all
 	sleep 1
-	yum -y install expect >> /dev/null 
+	yum -y -q install expect  
 	if [ $? -ne 0 ];then
 		echo "配置出错"
 		exit_return
@@ -38,27 +48,29 @@ function set_repo(){
 }
 #[安装]httpd2.4.6
 function install_httpd(){
-	yum install httpd -y
+	yum -q -y install httpd 
 	echo "---------httpd-install-ok----------"
 }
 #[安装]php5.4.16
 function install_php(){
-	yum -y install php php-mysql
+	yum -q -y install php php-mysql
 	echo "---------php-install-ok----------"
 }
 #[安装]mariadb5.5.64
 function install_mariadb(){
-	yum -y install mariadb-server
+	yum -q -y install mariadb-server
+	systemctl start mariadb
+	sleep 1
 	echo "---------mariaDB-install-ok----------"
 }
 #[安装]zabbix4.2.7
 function install_zabbix_server(){
-	yum -y install zabbix-server-mysql zabbix-web-mysql
+	yum -q -y install zabbix-server-mysql zabbix-web-mysql zabbix-get
 	echo "---------zabbix-server-install-ok----------"
 }
 #[安装]zabbix-agent
 function install_zabbix_agent(){
-	yum -y install zabbix-agent
+	yum -q -y install zabbix-agent
 	sleep 1
 	systemctl start zabbix-agent
 	sleep 2
@@ -105,7 +117,7 @@ function conf_zabbix_server(){
 #[配置]zabbix_agent
 function conf_zabbix_agent(){
 	echo '功能未完善'
-	echo "-----nothing-to-do------------"
+	echo "----sorry-nothing-to-do------------"
 }
 
 #[启动]httpd
@@ -115,7 +127,7 @@ function start_httpd(){
 }
 #[启动]mariadb
 function start_mariadb(){
-	systemctl start mariadb
+	systemctl restart mariadb
 	echo "---------start mariaDB-ok----------"
 }
 #[启动]zabbix-server
@@ -193,13 +205,11 @@ function auto_install(){
 
 if [ 0 -eq 0 ];then
 	while true ; do
-		#statements
 		echo -e "0).关闭防火墙\n1).手动安装\n2).手动配置\n3).启动服务\n4).停止服务\n5).添加开机启动\n6).一键全自动安装\nq).退出"
 		read -p "请选择配置项:" ias
 		case $ias in
 			0)
 				while true ; do
-					#statements
 					echo -e "1).确认关闭\nq).退出"
 					read -p "请选择配置项:" iaas
 					case $iaas in
@@ -216,7 +226,6 @@ if [ 0 -eq 0 ];then
 				;;
 			1)
 				while true ; do
-					#statements
 					echo -e "1).配置依赖包位置(离线安装操作必选)\n2).安装MariaDB\n3).安装Httpd\n4).安装Php\n5).安装Zabbix-server\n6).安装zabbix-agent\n7).安装所有\nq)返回菜单"
 					read -p "请选择配置项:" ibs
 					case $ibs in
@@ -285,7 +294,6 @@ if [ 0 -eq 0 ];then
 				;;
 			3)
 				while [[ true ]]; do
-					#statements
 					echo -e "1).启动httpd\n2).启动MariaDB\n3).启动Zabbix_Server\n4).启动zabbix_agent\n5).启动所有\nq).返回菜单"
 					read -p "请选择配置项:" ids
 					case $ids in
@@ -314,7 +322,6 @@ if [ 0 -eq 0 ];then
 				;;
 			4)
 				while [[ true ]]; do
-					#statements
 					echo -e "1).停止httpd\n2).停止MariaDB\n3).停止Zabbix_Server\n4).停止Zabbix_Agent\n5).停止所有\nq).返回菜单"
 					read -p "请选择配置项:" ies
 					case $ies in
@@ -343,7 +350,6 @@ if [ 0 -eq 0 ];then
 				;;
 			5)
 				while [[ true ]]; do
-					#statements
 					echo -e "1).添加开机启动Httpd服务\n2).添加开机启动MariaDB服务\n3).添加开机启动Zabbix_Server服务\n4).添加开机启动Zabbix_Agent服务\nq).返回菜单"
 					read -p "请选择配置项:" ifs
 					case $ifs in
