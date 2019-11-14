@@ -46,6 +46,7 @@ mysql> exit;
 
 #cd /usr/share/doc/zabbix-server-mysql-4.2.7/
 #gzip -d  create.sql.gz
+#gunzip -c create.sql.gz > create.sql
 
 6.导入zabbix数据库
 用户名：zabbix 密码：zabbix 数据库：zabbix
@@ -109,4 +110,11 @@ Server=[zabbix-server的ip]
 ServerActive=[zabbix-server的ip]
 Hostname=[在zabbix上配置的主机名]
 
-
+图形中文乱码
+字体文件目录:
+zabbix 4.2：/usr/share/zabbix/assets/fonts/
+zabbix 4.0：/usr/share/zabbix/fonts/
+将Win10系统C:\Windows\Fonts目录下的任意字体，拷贝到/usr/share/zabbix/assets/fonts/目录下
+默认的字体是graphfont.ttf -> /etc/alternatives/zabbix-web-font，它软链接到后者，把后者的软链接到从Win10复制下来的ttf文件即可。
+[root@zabbix ~]# rm -f /etc/alternatives/zabbix-web-font
+[root@zabbix ~]# ln -s /usr/share/zabbix/fonts/simkai.ttf /etc/alternatives/zabbix-web-font
